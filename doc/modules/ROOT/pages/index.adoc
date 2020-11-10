@@ -1,4 +1,7 @@
+:github-address: https://github.com/hazelcast-guides/kubernetes-sidecar
 :templates-url: templates:ROOT:page$/
+:hazelcast: Hazelcast IMDG
+:framework: Kubernetes
 
 = Hazelcast as Sidecar container
 
@@ -31,7 +34,7 @@ The *Client/Server* topology, on the other hand, can be used by any programming 
 
 Kubernetes allows to have multiple containers in one Pod, which usually means having the main application container and a so-called "sidecar" container. With such approach we can introduce a new Hazelcast topology which would place somewhere between Embedded and Client/Server.
 
-image::../assets/images/hazelcast_sidecar.png[]
+image::../assets/images/hazelcast_sidecar.png[Hazelcast sidecar]
 
 *Sidecar* topology brings the benefits of the *Embedded* topology, because Hazelcast scales together with the application and both containers run on the same machine. However, the application can be written in any programming language, because it connects to Hazelcast member using the standard Hazelcast Client libraries. What's more, https://github.com/hazelcast/hazelcast-kubernetes[Kubernetes Hazelcast auto-discovery] is currently implemented only for Java, but the Hazelcast Sidecar pattern makes auto-discovery available for all programming languages.
 
