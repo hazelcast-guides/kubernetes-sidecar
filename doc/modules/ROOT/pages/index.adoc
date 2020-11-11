@@ -30,7 +30,6 @@ The *Embedded* topology is dedicated to JVM-based applications. The application 
 
 image::hazelcast_topology.png[Hazelcast topology]
 
-
 The *Client/Server* topology, on the other hand, can be used by any programming language for which Hazelcast Client is provided (https://hazelcast.org/clients-languages/[Java, .NET, C++, Node.js, Python, Go, Scala]). It also separates Hazelcast data from applications and let them scale separately. You can find an example of the client/server Hazelcast deployed on Kubernetes https://github.com/hazelcast-guides/kubernetes-external-client[here].
 
 === Hazelcast Sidecar
