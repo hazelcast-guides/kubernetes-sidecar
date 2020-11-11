@@ -7,6 +7,8 @@
 
 This is a complete example presenting how to use Hazelcast as a sidecar container for your applications deployed on Kubernetes.
 
+include::{templates-url}/link-to-repo.adoc[]
+
 == Prerequisites
 
 - ~15 minutes
@@ -26,7 +28,8 @@ Hazelcast is usually deployed using one of https://docs.hazelcast.org/docs/lates
 
 The *Embedded* topology is dedicated to JVM-based applications. The application itself starts a Hazelcast member, which is simple to configure. Such approach also provides low-latency data access, because Hazelcast member runs on the same machine as the application. What's more, Hazelcast scales together with your application. You can find an example of the embedded Hazelcast deployed on Kubernetes https://guides.hazelcast.org/kubernetes-embedded/[here].
 
-image::../assets/images/hazelcast_topology.png[Hazelcast topology]
+image::hazelcast_topology.png[Hazelcast topology]
+
 
 The *Client/Server* topology, on the other hand, can be used by any programming language for which Hazelcast Client is provided (https://hazelcast.org/clients-languages/[Java, .NET, C++, Node.js, Python, Go, Scala]). It also separates Hazelcast data from applications and let them scale separately. You can find an example of the client/server Hazelcast deployed on Kubernetes https://github.com/hazelcast-guides/kubernetes-external-client[here].
 
@@ -34,7 +37,7 @@ The *Client/Server* topology, on the other hand, can be used by any programming 
 
 Kubernetes allows to have multiple containers in one Pod, which usually means having the main application container and a so-called "sidecar" container. With such approach we can introduce a new Hazelcast topology which would place somewhere between Embedded and Client/Server.
 
-image::../assets/images/hazelcast_sidecar.png[Hazelcast sidecar]
+image::hazelcast_sidecar.png[Hazelcast sidecar]
 
 *Sidecar* topology brings the benefits of the *Embedded* topology, because Hazelcast scales together with the application and both containers run on the same machine. However, the application can be written in any programming language, because it connects to Hazelcast member using the standard Hazelcast Client libraries. What's more, https://github.com/hazelcast/hazelcast-kubernetes[Kubernetes Hazelcast auto-discovery] is currently implemented only for Java, but the Hazelcast Sidecar pattern makes auto-discovery available for all programming languages.
 
