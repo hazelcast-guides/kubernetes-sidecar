@@ -15,6 +15,7 @@ jobs:
       - uses: engineerd/setup-kind@v0.5.0
         with:
           version: "v0.7.0"
+          config: kind.yaml
 
       - name: Deploy to Kuberenetes
         run: |-
@@ -29,8 +30,8 @@ jobs:
 
       - name: Query application
         run: |-
-          kubectl exec pod/hazelcast-sidecar-0 -- curl "127.0.0.1:5000/put?key=someKey&value=someValue"
-          kubectl exec pod/hazelcast-sidecar-1 -- curl "127.0.0.1:5000/get?key=someKey"
+          curl "127.0.0.1:5000/put?key=someKey&value=someValue"
+          curl "127.0.0.1:5000/get?key=someKey"
 
       - name: Log status on failure
         if: ${{ failure() }}
@@ -38,4 +39,3 @@ jobs:
           kubectl describe pod/hazelcast-sidecar-0
           kubectl describe pod/hazelcast-sidecar-1
           exit 1
-
