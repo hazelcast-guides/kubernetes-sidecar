@@ -33,7 +33,7 @@ jobs:
           kubectl run curl-put --image=curlimages/curl -- "$clusterIP:5000/put?key=someKey&value=someValue"
           kubectl wait --for=condition=ready pod/curl-put --timeout=200s
           kubectl run curl-get --image=curlimages/curl -- "$clusterIP:5000/get?key=someKey"
-          kubectl wait --for=condition=ready pod/curl-get --timeout=150s
+          kubectl wait --for=condition=ready pod/curl-get --timeout=200s
           kubectl logs curl-get
 
       - name: Log status on failure
