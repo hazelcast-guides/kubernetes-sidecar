@@ -30,7 +30,7 @@ jobs:
 
       - name: Query application
         run: |-
-          clusterIP=kubectl get svc hazelcast-sidecar -o jsonpath='{$.spec.clusterIP}'
+          clusterIP=$(kubectl get svc hazelcast-sidecar -o jsonpath='{$.spec.clusterIP}')
           kubectl run curl --image=curlimages/curl -- "$clusterIP:5000/put?key=someKey&value=someValue"
           kubectl wait --for=condition=ready pod/curl-sidecar-0 --timeout=150s
 
