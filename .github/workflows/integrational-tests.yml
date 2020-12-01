@@ -40,6 +40,8 @@ jobs:
           kubectl create job curl-get --image=curlimages/curl -- curl "$clusterIP:5000/put?key=someKey&value=someValue"
           kubectl wait --for=condition=complete job/curl-get --timeout=200s
 
+          kubectl logs job/curl-get
+
       - name: Log status on failure
         if: ${{ failure() }}
         run: |-
