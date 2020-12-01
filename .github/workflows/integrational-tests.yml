@@ -27,21 +27,9 @@ jobs:
           kubectl wait --for=condition=ready pod/hazelcast-sidecar-0 --timeout=150s
           kubectl wait --for=condition=ready pod/hazelcast-sidecar-1 --timeout=120s
 
-      - name: Query application
-        run: |-
-          clusterIP=$(kubectl get svc hazelcast-sidecar -o jsonpath='{$.spec.clusterIP}')
-          kubectl run curl-put --image=curlimages/curl -- "$clusterIP:5000/put?key=someKey&value=someValue"
-          kubectl wait --for=condition=ready pod/curl-put --timeout=200s
-          kubectl delete pod curl-put
-          kubectl run curl-get --image=curlimages/curl -- "$clusterIP:5000/get?key=someKey"
-          kubectl wait --for=condition=ready pod/curl-get --timeout=200s
-          kubectl logs curl-get
-
       - name: Log status on failure
         if: ${{ failure() }}
         run: |-
           kubectl describe pod/hazelcast-sidecar-0
           kubectl describe pod/hazelcast-sidecar-1
-          kubectl describe pod/curl-put
-          kubectl describe pod/curl-get
           exit 1
