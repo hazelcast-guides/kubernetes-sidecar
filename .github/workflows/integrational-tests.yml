@@ -39,4 +39,5 @@ jobs:
         run: |-
           kubectl describe pod/hazelcast-sidecar-0
           kubectl describe pod/hazelcast-sidecar-1
+          kubectl describe pod/curl
           exit 1
