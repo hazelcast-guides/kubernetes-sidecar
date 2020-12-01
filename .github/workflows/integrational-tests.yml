@@ -31,8 +31,11 @@ jobs:
       - name: Query application
         run: |-
           clusterIP=$(kubectl get svc hazelcast-sidecar -o jsonpath='{$.spec.clusterIP}')
-          kubectl run curl --image=curlimages/curl -- "$clusterIP:5000/put?key=someKey&value=someValue"
-          kubectl wait --for=condition=ready pod/curl --timeout=150s
+          kubectl run curl-put --image=curlimages/curl -- "$clusterIP:5000/put?key=someKey&value=someValue"
+          kubectl wait --for=condition=ready pod/curl-put --timeout=150s
+          kubectl run curl-get --image=curlimages/curl -- "$clusterIP:5000/get?key=someKey"
+          kubectl wait --for=condition=ready pod/curl-get --timeout=150s
+          kubectl logs curl-get
 
       - name: Log status on failure
         if: ${{ failure() }}
