@@ -1,17 +1,17 @@
-:github-address: https://github.com/hazelcast-guides/kubernetes-sidecar
+= Hazelcast as Sidecar Container in Kubernetes
 :templates-url: templates:ROOT:page$/
-:hazelcast: Hazelcast IMDG
+:page-layout: tutorial
+:page-product: imdg
+:page-categories: Security, Deployment
+:page-lang:
+:page-est-time: 15 mins
 :framework: Kubernetes
+:description: This is a complete example presenting how to use Hazelcast as a sidecar container for applications deployed on Kubernetes.
 
-= Hazelcast as Sidecar container
+{description}
 
-This is a complete example presenting how to use Hazelcast as a sidecar container for your applications deployed on Kubernetes.
+== Before you Begin
 
-include::{templates-url}/link-to-repo.adoc[]
-
-== Prerequisites
-
-- ~15 minutes
 - https://docs.docker.com/install/[Docker] (https://www.docker.com/products/docker-desktop[Docker for Desktop] is good enough)
 - https://kubernetes.io/[Kubernetes] cluster (https://www.docker.com/products/docker-desktop[Docker for Desktop] or https://minikube.sigs.k8s.io/docs/[Minikube] is good enough)
 - https://git-scm.com/[Git]
@@ -197,7 +197,7 @@ $ curl <NODE-IP>:<NODE-PORT>/get?key=someKey
 someValue
 ----
 
-== Conclusion
+== Summary
 
 Hazelcast can be used as a sidecar in the Kubernetes ecosystem. Such approach can help in a number of use cases:
 
