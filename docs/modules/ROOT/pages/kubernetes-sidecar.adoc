@@ -1,57 +1,50 @@
-:github-address: https://github.com/hazelcast-guides/kubernetes-sidecar
+= Hazelcast as Sidecar Container in Kubernetes
 :templates-url: templates:ROOT:page$/
-:hazelcast: Hazelcast IMDG
+:page-layout: tutorial
+:page-product: imdg
+:page-categories: Cloud Native, Deployment
+:page-lang:
+:page-est-time: 15 mins
 :framework: Kubernetes
+:description: Use Hazelcast as a sidecar container for applications deployed on Kubernetes.
 
-= Hazelcast as Sidecar container
+{description}
 
-This is a complete example presenting how to use Hazelcast as a sidecar container for your applications deployed on Kubernetes.
+== Before you Begin
 
-include::{templates-url}/link-to-repo.adoc[]
-
-== Prerequisites
-
-- ~15 minutes
 - https://docs.docker.com/install/[Docker] (https://www.docker.com/products/docker-desktop[Docker for Desktop] is good enough)
 - https://kubernetes.io/[Kubernetes] cluster (https://www.docker.com/products/docker-desktop[Docker for Desktop] or https://minikube.sigs.k8s.io/docs/[Minikube] is good enough)
 - https://git-scm.com/[Git]
 - Python
+- `kubectl`
 
-== Introduction
+== Context
 
-Hazelcast is usually deployed using one of https://docs.hazelcast.org/docs/latest/manual/html-single/#hazelcast-topology[two topologies]:
+Hazelcast is usually deployed using one of two topologies:
 
 - Embedded
 - Client/Server
 
-=== Hazelcast Topologies
-
-The *Embedded* topology is dedicated to JVM-based applications. The application itself starts a Hazelcast member, which is simple to configure. Such approach also provides low-latency data access, because Hazelcast member runs on the same machine as the application. What's more, Hazelcast scales together with your application. You can find an example of the embedded Hazelcast deployed on Kubernetes https://guides.hazelcast.org/kubernetes-embedded/[here].
+The *embedded* topology is dedicated to JVM-based applications. The application itself starts a Hazelcast member, which is simple to configure. Such approach also provides low-latency data access, because Hazelcast member runs on the same machine as the application. What's more, Hazelcast scales together with your application.
 
 image::hazelcast_topology.png[Hazelcast topology]
 
-The *Client/Server* topology, on the other hand, can be used by any programming language for which Hazelcast Client is provided (https://hazelcast.org/clients-languages/[Java, .NET, C++, Node.js, Python, Go, Scala]). It also separates Hazelcast data from applications and let them scale separately. You can find an example of the client/server Hazelcast deployed on Kubernetes https://github.com/hazelcast-guides/kubernetes-external-client[here].
+The *client/server* topology, on the other hand, can be used by any programming language for which Hazelcast Client is provided (https://hazelcast.org/clients-languages/[Java, .NET, C++, Node.js, Python, Go, Scala]). It also separates Hazelcast data from applications and let them scale separately.
 
-=== Hazelcast Sidecar
-
-Kubernetes allows to have multiple containers in one Pod, which usually means having the main application container and a so-called "sidecar" container. With such approach we can introduce a new Hazelcast topology which would place somewhere between Embedded and Client/Server.
+Kubernetes allows you to have multiple containers in one Pod, which usually means having the main application container and a so-called "sidecar" container. With this approach, you can introduce a new Hazelcast topology, which would be somewhere between embedded and client/server.
 
 image::hazelcast_sidecar.png[Hazelcast sidecar]
 
-*Sidecar* topology brings the benefits of the *Embedded* topology, because Hazelcast scales together with the application and both containers run on the same machine. However, the application can be written in any programming language, because it connects to Hazelcast member using the standard Hazelcast Client libraries. What's more, https://github.com/hazelcast/hazelcast-kubernetes[Kubernetes Hazelcast auto-discovery] is currently implemented only for Java, but the Hazelcast Sidecar pattern makes auto-discovery available for all programming languages.
+The *sidecar* topology brings the benefits of the *embedded* topology, because Hazelcast scales together with the application and both containers run on the same machine. However, the application can be written in any programming language, because it connects to the Hazelcast member, using the standard Hazelcast client libraries. What's more, https://github.com/hazelcast/hazelcast-kubernetes[Kubernetes Hazelcast auto-discovery] is currently implemented only for Java, but the Hazelcast Sidecar pattern makes auto-discovery available for all programming languages.
 
-== Step-by-step Guide
-
-Assuming you have a running Kubernetes cluster, and the `kubectl` command configured, let's create a Python-based web service with Hazelcast sidecar member.
-
-The web service will have two endpoints:
+In this tutorial, you'll create a Python-based web service for the Hazelcast sidecar member. The web service will have two endpoints:
 
 - `/put` for putting a value into a Hazelcast distributed map
 - `/get` for getting a value from a Hazelcast distributed map
 
-Hazelcast sidecar members from all Pods will form a Hazelcast cluster together.
+Hazelcast sidecar members from all Pods will form a Hazelcast cluster.
 
-=== 1. Create Python Application
+== Step 1. Create the Python Application
 
 You can use any programming language for which Hazelcast Client is provided (https://hazelcast.org/clients-languages/[Java, .NET, C++, Node.js, Python, Go, Scala]) for this guide.
 As a sample we will use the Python application from https://github.com/hazelcast-guides/kubernetes-sidecar[Hazelcast as Sidecar container]
@@ -74,7 +67,7 @@ map = hazelcastClient.get_map("map")
 value = map.get(key)
 ----
 
-=== 2. Dockerize Python Application
+== Step 2. Dockerize the Python Application
 
 In the `Dockerfile` we install `Flask` and `hazelcast-client-python` Python packages. Then, we start the application on the default Flask port (5000).
 
@@ -86,7 +79,7 @@ $ docker build -t leszko/hazelcast-python-client .
 $ docker push leszko/hazelcast-python-client
 ----
 
-*Note*: If you don't have a Docker Hub account, or you don't want to use it, you can do one of the followings:
+NOTE: If you don't have a Docker Hub account, or you don't want to use it, you can do one of the followings:
 
 * Use `leszko/hazelcast-python-client` in all further steps
 * Build image with your Kubernetes-related Docker host (then you don't need to push it):
@@ -94,7 +87,7 @@ $ docker push leszko/hazelcast-python-client
 - If you use Minikube, then you need to execute eval $(minikube docker-env) before building the image
 - If you use Kubernetes from a Cloud platform, then you need to upload the image to their registry
 
-=== 3. Create Sidecar Deployment
+== Step 3. Use Hazelcast as a Sidecar Deployment
 
 The next step is to configure Python application container and Hazelcast member container to exist in the same Kubernetes Pod. We do in deployment.yaml.
 
@@ -116,7 +109,7 @@ containers:
 
 Apart from that, we configure the deployment to have 2 Pod replicas and a NodePort service to expose the Python application.
 
-=== 4. Deploy Sidecar Application
+== Step 4. Deploy the Sidecar Application
 
 Before running the deployment, we need to configure RBAC (needed for Hazelcast container to make calls to Kubernetes API) and store Hazelcast configuration in ConfigMap.
 
@@ -133,7 +126,7 @@ Finally, we can deploy our application with the sidecar Hazelcast member.
 kubectl apply -f deployment.yaml
 ----
 
-=== 5. Verify Sidecar Application
+== Step 5. Verify the Sidecar Application
 
 You should see 2 Pods, each having 2 containers (`hazelcast` ans `app`).
 
@@ -197,7 +190,7 @@ $ curl <NODE-IP>:<NODE-PORT>/get?key=someKey
 someValue
 ----
 
-== Conclusion
+== Summary
 
 Hazelcast can be used as a sidecar in the Kubernetes ecosystem. Such approach can help in a number of use cases:
 
