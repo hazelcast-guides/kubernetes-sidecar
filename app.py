@@ -1,13 +1,16 @@
-import hazelcast
+from hazelcast import HazelcastClient
 from flask import Flask
 from flask import request
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 app = Flask(__name__)
 
-config = hazelcast.ClientConfig()
-config.network_config.addresses.append("127.0.0.1:5701")
-hazelcastClient = hazelcast.HazelcastClient(config)
 
+hazelcastClient = HazelcastClient(
+    cluster_name="dev"
+)
 
 @app.route("/put")
 def put():
