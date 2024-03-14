@@ -13,7 +13,7 @@
 == Before you Begin
 
 - https://docs.docker.com/install/[Docker] (https://www.docker.com/products/docker-desktop[Docker for Desktop] is good enough)
-- https://kubernetes.io/[Kubernetes] cluster (https://www.docker.com/products/docker-desktop[Docker for Desktop] or https://minikube.sigs.k8s.io/docs/[Minikube] is good enough)
+- https://kubernetes.io/[Kubernetes] cluster (https://www.docker.com/products/docker-desktop[Docker for Desktop], https://minikube.sigs.k8s.io/docs/[Minikube] or https://microk8s.io/docs/install-alternatives[MicroK8s] is good enough)
 - https://git-scm.com/[Git]
 - Python
 - `kubectl`
@@ -47,17 +47,24 @@ Hazelcast sidecar members from all Pods will form a Hazelcast cluster.
 == Step 1. Create the Python Application
 
 You can use any programming language for which Hazelcast Client is provided (https://hazelcast.org/clients-languages/[Java, .NET, C++, Node.js, Python, Go, Scala]) for this guide.
-As a sample we will use the Python application from https://github.com/hazelcast-guides/kubernetes-sidecar[Hazelcast as Sidecar container]
+As a sample we will use the Python application from https://github.com/hazelcast-guides/kubernetes-sidecar[Hazelcast as Sidecar container].
+First, setup a Python environment:
+
+[source, shell]
+----
+$ python -m venv .venv
+$ source .venv/bin/activate
+$ pip install -r requirements.txt
+----
 You can find the Python web service application (written with the Flask framework) in the `app.py` file. The most interesting part is the connection to the Hazelcast member.
 
 [source, python]
 ----
-config = hazelcast.ClientConfig()
-config.network_config.addresses.append("127.0.0.1:5701")
-hazelcastClient = hazelcast.HazelcastClient(config)
+hazelcastClient = HazelcastClient(
+    cluster_name="dev"
+)
 ----
-
-We connect to `127.0.0.1`, because in Kubernetes Pod all containers share the same network layer. Thanks to that, we can always depend on the fact that the Hazelcast member is running at localhost.
+In the example, we used `dev` for the cluster name. Adding members is not necessary due to the auto-discovery via the headless service.
 
 Then, in the endpoint controller, we simply use the `hazelcastClient` as we always do.
 
@@ -85,17 +92,18 @@ NOTE: If you don't have a Docker Hub account, or you don't want to use it, you c
 * Build image with your Kubernetes-related Docker host (then you don't need to push it):
 - If you use Docker Desktop, then your local image is already accessible to Kubernetes
 - If you use Minikube, then you need to execute eval $(minikube docker-env) before building the image
+- If you use MicroK8s, follow the instructions on https://microk8s.io/docs/registry-built-in
 - If you use Kubernetes from a Cloud platform, then you need to upload the image to their registry
 
 == Step 3. Use Hazelcast as a Sidecar Deployment
 
-The next step is to configure Python application container and Hazelcast member container to exist in the same Kubernetes Pod. We do in deployment.yaml.
+The next step is to configure Python application container and Hazelcast member container to exist in the same Kubernetes Pod. We do in `statefulset.yaml`.
 
 [source, yaml]
 ----
 containers:
   - name: hazelcast
-    image: hazelcast/hazelcast:3.12
+    image: hazelcast/hazelcast:5.3.0
     ports:
     - name: hazelcast
       containerPort: 5701
@@ -123,7 +131,7 @@ Finally, we can deploy our application with the sidecar Hazelcast member.
 
 [source, shell script]
 ----
-kubectl apply -f deployment.yaml
+kubectl apply -f statefulset.yaml
 ----
 
 == Step 5. Verify the Sidecar Application
@@ -132,7 +140,7 @@ You should see 2 Pods, each having 2 containers (`hazelcast` ans `app`).
 
 [source, shell script]
 ----
-$ kubectl get pods
+$ kubectl get pods -l app=hazelcast-sidecar
 NAME                  READY   STATUS    RESTARTS   AGE
 hazelcast-sidecar-0   2/2     Running   2          1m
 hazelcast-sidecar-1   2/2     Running   2          1m
@@ -177,9 +185,10 @@ In our case `<NODE-PORT>` is `32470`.
 
 Checking `<NODE-IP>` depends on your Kubernetes:
 
-In case of Docker Desktop, it's `localhost`
-In case of Minikube, check it with `minikube ip`
-In case of Cloud platforms (and on-premise), check it with: `kubectl get nodes -o jsonpath='{ $.items[*].status.addresses[?(@.type=="ExternalIP")].address }'`
+- In case of Docker Desktop, it's `localhost`
+- In case of Minikube, check it with `minikube ip`
+- In case of MicroK8s, check it with `kubectl get nodes -o jsonpath='{ $.items[*].status.addresses[?(@.type=="InternalIP")].address}'`
+- In case of Cloud platforms (and on-premise), check it with: `kubectl get nodes -o jsonpath='{ $.items[*].status.addresses[?(@.type=="ExternalIP")].address}'`
 
 Let's insert some data and then read it.
 

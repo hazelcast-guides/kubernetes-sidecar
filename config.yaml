@@ -5,9 +5,11 @@ metadata:
 data:
   hazelcast.yaml: |-
     hazelcast:
+      cluster-name: dev
       network:
         join:
           multicast:
             enabled: false
           kubernetes:
             enabled: true
+            service-name: hazelcast-headless

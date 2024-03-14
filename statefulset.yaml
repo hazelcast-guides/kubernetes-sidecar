@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: hazelcast
-          image: hazelcast/hazelcast:3.12
+          image: hazelcast/hazelcast:5.3.0
           ports:
             - name: hazelcast
               containerPort: 5701
@@ -36,9 +36,20 @@ spec:
         - name: hazelcast-storage
           configMap:
             name: hazelcast-configuration
-
 ---
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: hazelcast-headless
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: hazelcast-sidecar
+  ports:
+    - name: tcp-hazelcast
+      port: 5701
+---
 apiVersion: v1
 kind: Service
 metadata:
